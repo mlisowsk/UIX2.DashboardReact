@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A1428CC0-2CED-43D4-A3C6-6F56CC38A84B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>UIX2.DashboardReact</RootNamespace>
+    <AssemblyName>UIX2.DashboardReact</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>out\Debug\</OutputPath>
+	<PackPath>pack\Debug\</PackPath>
+	<PackPathBash>pack/Debug/</PackPathBash>
+	<MapPath>maps\Debug\</MapPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>out\Release\</OutputPath>
+	<PackPath>pack\Release\</PackPath>
+	<PackPathBash>pack/Release/</PackPathBash>
+	<MapPath>maps\Release\</MapPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="src\appdef.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="src\index.html" />
+    <Content Include="src\index.jsx" />
+    <Content Include="src\shellui.js" />
+    <Content Include="src\style.css" />
+    <Content Include="webpack.config.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="package.json" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Target Name="Clean">
+	<RemoveDir Directories="$(OutputPath);$(PackPath);$(MapPath)" />
+	<MakeDir Directories="$(OutputPath);$(PackPath);$(MapPath)" />
+  </Target>
+  <Target Name="Build">
+	<MakeDir Directories="$(OutputPath)" />
+	<CreateItem Include="$(PackPath)\**">
+	  <Output ItemName="ApplicationFiles" TaskParameter="Include" />
+	</CreateItem>
+	<Exec Command="npx webpack --no-color --output-path $(PackPathBash) --config=webpack.config.js" />
+	<Copy SourceFiles="src\appdef.xml" DestinationFolder="$(PackPath)" />
+	<Message Importance="High" Text="Packing UIX app..." />
+	<ZipDirectory SourceDirectory="$(PackPath)" DestinationFile="$(OutputPath)\$(AssemblyName).mfappx" Overwrite="true" />
+    <!-- Modify and uncomment the following line to enable development time installation to sysapps folder.
+         Visual Studio needs to run in Administrative mode. -->
+    <!-- <Unzip ZipFileName="out\$(AssemblyName).mfappx" TargetDirectory="C:\Program Files\M-Files\<Version>\Client\Apps\<VaultGuid>\sysapps\$(AssemblyName)" /> -->
+  </Target>
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
+  </Target>
+  <Import Project="..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

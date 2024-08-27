@@ -41,7 +41,6 @@ module.exports = function (env, argv) {
 				{
 					test: /\.(js|jsx)$/,	// transpile JSX to JS using babel
 					exclude: /node_modules/,	// don't mess with node_modules
-					use: ['babel-loader'],
 					use: {
 						loader: "babel-loader",
 						options: {
@@ -90,10 +89,10 @@ module.exports = function (env, argv) {
 				],
 			}),
 			new MiniCssExtractPlugin(),
-			new webpack.SourceMapDevToolPlugin({
-				append: '\n//# sourceMappingURL=file:///C:/kanban_sourcemaps/[url]',
-				filename: '[file].map[query]',
-			}),
+			//new webpack.SourceMapDevToolPlugin({
+			//	append: '\n//# sourceMappingURL=file:///C:/sourcemaps/[url]',
+			//	filename: '[file].map[query]',
+			//}),
 		],
 		cache: {
 			type: 'filesystem',	// cache build process

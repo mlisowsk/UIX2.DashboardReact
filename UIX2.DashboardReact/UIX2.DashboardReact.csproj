@@ -9,6 +9,8 @@
     <RootNamespace>UIX2.DashboardReact</RootNamespace>
     <AssemblyName>UIX2.DashboardReact</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <!-- Defines vault group for deployment - see install-application.user.json -->
+    <MFilesVaultGroup>test</MFilesVaultGroup>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
@@ -17,17 +19,17 @@
     <DebugSymbols>false</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>out\Debug\</OutputPath>
-	<PackPath>pack\Debug\</PackPath>
-	<PackPathBash>pack/Debug/</PackPathBash>
-	<MapPath>maps\Debug\</MapPath>
+    <PackPath>pack\Debug\</PackPath>
+    <PackPathBash>pack/Debug/</PackPathBash>
+    <MapPath>maps\Debug\</MapPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>out\Release\</OutputPath>
-	<PackPath>pack\Release\</PackPath>
-	<PackPathBash>pack/Release/</PackPathBash>
-	<MapPath>maps\Release\</MapPath>
+    <PackPath>pack\Release\</PackPath>
+    <PackPathBash>pack/Release/</PackPathBash>
+    <MapPath>maps\Release\</MapPath>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="src\appdef.xml">
@@ -40,27 +42,32 @@
     <Content Include="webpack.config.js" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="install-application.ps1" />
     <None Include="package.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <Target Name="Clean">
-	<RemoveDir Directories="$(OutputPath);$(PackPath);$(MapPath)" />
-	<MakeDir Directories="$(OutputPath);$(PackPath);$(MapPath)" />
+    <RemoveDir Directories="$(OutputPath);$(PackPath);$(MapPath)" />
+    <MakeDir Directories="$(OutputPath);$(PackPath);$(MapPath)" />
   </Target>
   <Target Name="Build">
-	<MakeDir Directories="$(OutputPath)" />
-	<CreateItem Include="$(PackPath)\**">
-	  <Output ItemName="ApplicationFiles" TaskParameter="Include" />
-	</CreateItem>
-	<Exec Command="npx webpack --no-color --output-path $(PackPathBash) --config=webpack.config.js" />
-	<Copy SourceFiles="src\appdef.xml" DestinationFolder="$(PackPath)" />
-	<Message Importance="High" Text="Packing UIX app..." />
-	<ZipDirectory SourceDirectory="$(PackPath)" DestinationFile="$(OutputPath)\$(AssemblyName).mfappx" Overwrite="true" />
+    <MakeDir Directories="$(OutputPath)" />
+    <CreateItem Include="$(PackPath)\**">
+      <Output ItemName="ApplicationFiles" TaskParameter="Include" />
+    </CreateItem>
+    <Exec Command="npx webpack --no-color --output-path $(PackPathBash) --config=webpack.config.js" />
+    <Copy SourceFiles="src\appdef.xml" DestinationFolder="$(PackPath)" />
+    <Message Importance="High" Text="Packing UIX app..." />
+    <ZipDirectory SourceDirectory="$(PackPath)" DestinationFile="$(OutputPath)\$(AssemblyName).mfappx" Overwrite="true" />
     <!-- Modify and uncomment the following line to enable development time installation to sysapps folder.
          Visual Studio needs to run in Administrative mode. -->
     <!-- <Unzip ZipFileName="out\$(AssemblyName).mfappx" TargetDirectory="C:\Program Files\M-Files\<Version>\Client\Apps\<VaultGuid>\sysapps\$(AssemblyName)" /> -->
   </Target>
   <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+  <Target Name="DeployIfNeeded" AfterTargets="Build" Condition="false == $(DefineConstants.Contains('DONOTDEPLOY'))">
+    <Message Importance="High" Text="Executing deployment script..." />
+    <Exec Command="PowerShell -ExecutionPolicy Bypass -File install-application.ps1 -appFilePath &quot;$(OutputPath)\$(AssemblyName).mfappx&quot; $(MFilesVaultGroup)" />
+  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

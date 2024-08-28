@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # npm package-lock.json
 package-lock.json
+
+# M-Files vault app installation script user-specific admin credentials
+install-application.user.json
